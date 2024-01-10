@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Company Contact List</title>
+        <link rel="stylesheet" href="style.css"/>
+    </head>
+<body>
+  <div id="root"></div>
+</body>
+<!-- This setup is not suitable for production. -->
+<!-- Only use it in development! -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script async src="https://ga.jspm.io/npm:es-module-shims@1.7.0/dist/es-module-shims.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react?dev",
+    "react-dom/client": "https://esm.sh/react-dom/client?dev"
+  }
+}
+</script>
+<script type="text/babel" data-type="module">
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+const { useState, useEffect } = React;
+
+const Title = ({count})=> {
+    return (
+        <h1> Company Contact List {count} </h1>
+    );
+};
+
+const ContactDetail = ({company})=>{
+    return(
+        <li>
+            <h2><a href='#'>{company.name}</a></h2>
+            <p>{company.state}</p>
+            <p>{company.catchPhrase}</p>
+            <p>{company.phone}</p>
+        </li>
+    );
+};
+
+const Contacts = ({ companies, selectedId })=> {
+    return(
+    <ul>
+        {
+        companies.map((company)=>{
+            if(company.id === selectedId){
+                return(
+                <ContactDetail key = {company.id} company= {company}/>
+            );
+            }
+            else{
+                return(
+                <li key= {company.id}>
+                    <a href={`#${company.id}`}>
+                        {company.name}
+                    </a>
+                </li>
+            );
+            }
+          })
+        }
+     
+    </ul>
+    );
+}
+
+
+function App() {
+    const [companies, setCompanies] = useState([]);
+    const [selectedId, setSelectedId] = useState(window.location.hash.slice(1));
+  
+    useEffect(()=>{
+        window.addEventListener('hashchange', ()=>{
+            setSelectedId(window.location.hash.slice(1));
+        })
+        }, []);
+
+    useEffect(()=> {
+        const fetchData = async ()=>{
+            const response = await fetch('https://www.acme-api.com/api/companies');
+            const json = await response.json();
+            setCompanies(json);
+        }
+        fetchData();
+    }, [])
+  
+    return (
+    <div>
+        <Title count={ companies.length }/>
+        <Contacts companies ={companies} selectedId={ selectedId }/>
+      
+    </div>
+  );
+}
+
+const root = createRoot(document.getElementById('root'));
+root.render(
+  <App />
+);
+</script>
+</html>
